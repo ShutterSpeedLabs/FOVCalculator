@@ -132,10 +132,10 @@
         <label>Resolution</label>
         <div class="button-group" id="resolution-buttons">
             <button data-value="320x240">320 x 240</button>
-            <button data-value="640x480">640 x 480</button>
+            <button data-value="640x480" class="selected" >640 x 480</button>
             <button data-value="1024x768">1024 x 768</button>
             <button data-value="1280x720">1280 x 720</button>
-            <button data-value="1920x1080" class="selected">1920 x 1080</button>
+            <button data-value="1920x1080">1920 x 1080</button>
             <button data-value="3840x2160">3840 x 2160</button>
             <button data-value="custom" id="custom-resolution-button">Custom</button>
         </div>
@@ -431,17 +431,28 @@
                 const verticalFOV = (2 * Math.atan((height * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
                 const diagonalFOV = (2 * Math.atan((Math.sqrt(width**2 + height**2) * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
 
+                // Calculate IFOV (in microradians and degrees)
+                const horizontalIFOV_urad = (pixelPitchMM / currentFocalLength) * 1000000; // Convert to microradians
+                const verticalIFOV_urad = horizontalIFOV_urad; // Same for square pixels
+                const horizontalIFOV_deg = horizontalIFOV_urad * (180 / Math.PI) / 1000000;
+                const verticalIFOV_deg = horizontalIFOV_deg;
+
                 // Check for valid results
-                if (isNaN(horizontalFOV) || isNaN(verticalFOV) || isNaN(diagonalFOV)) {
+                if (isNaN(horizontalFOV) || isNaN(verticalFOV) || isNaN(diagonalFOV) || 
+                    isNaN(horizontalIFOV_urad) || isNaN(verticalIFOV_urad)) {
                     showWarning('Invalid calculation result. Please check your inputs.');
                     return;
                 }
 
                 // Display results
                 document.getElementById('result').innerHTML = 
+                    `<strong>Field of View (FOV):</strong><br>` +
                     `Horizontal FOV: ${horizontalFOV.toFixed(2)}°<br>` +
                     `Vertical FOV: ${verticalFOV.toFixed(2)}°<br>` +
-                    `Diagonal FOV: ${diagonalFOV.toFixed(2)}°`;
+                    `Diagonal FOV: ${diagonalFOV.toFixed(2)}°<br><br>` +
+                    `<strong>Instantaneous Field of View (IFOV):</strong><br>` +
+                    `Horizontal IFOV: ${horizontalIFOV_urad.toFixed(2)} µrad (${horizontalIFOV_deg.toFixed(4)}°)<br>` +
+                    `Vertical IFOV: ${verticalIFOV_urad.toFixed(2)} µrad (${verticalIFOV_deg.toFixed(4)}°)`;
             } catch (error) {
                 showWarning('An error occurred during calculation. Please check your inputs.');
             }
