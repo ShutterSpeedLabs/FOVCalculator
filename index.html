@@ -8,6 +8,8 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
+            background-color: #1a1a1a;
+            color: #ffffff;
         }
         .container {
             max-width: 600px;
@@ -22,35 +24,47 @@
         button {
             padding: 10px;
             cursor: pointer;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: #444;
         }
         button.selected {
-            background-color: blue;
+            background-color: #0066cc;
             color: white;
+            border-color: #0077ee;
         }
         .result {
             font-weight: bold;
             text-align: center;
             margin-top: 20px;
             line-height: 1.6;
+            background-color: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
         }
         #calculate-button {
             display: block;
             margin: 20px auto;
             padding: 10px 20px;
-            background-color: green;
+            background-color: #2e7d32;
             color: white;
             border: none;
             cursor: pointer;
             font-size: 16px;
         }
         #calculate-button:hover {
-            background-color: darkgreen;
+            background-color: #3d8b40;
         }
         footer {
             text-align: center;
             margin-top: 40px;
             font-size: 14px;
-            color: gray;
+            color: #888;
         }
         .input-group {
             display: flex;
@@ -61,11 +75,13 @@
         }
         .input-group input {
             padding: 8px;
-            border: 2px solid #ddd;
+            border: 2px solid #444;
             border-radius: 4px;
             font-size: 14px;
             width: 200px;
             transition: border-color 0.3s;
+            background-color: #2a2a2a;
+            color: #fff;
         }
         .input-group input:focus {
             outline: none;
@@ -77,13 +93,17 @@
         }
         .input-hint {
             font-size: 12px;
-            color: #666;
+            color: #aaa;
             margin-left: 10px;
         }
         .error-message {
             color: #ff4444;
-            font-size: 12px;
-            margin-top: 4px;
+            font-size: 14px;
+            padding: 8px;
+            margin-top: 5px;
+            background-color: rgba(255, 68, 68, 0.1);
+            border-left: 3px solid #ff4444;
+            border-radius: 0 4px 4px 0;
             display: none;
         }
         label {
@@ -93,6 +113,15 @@
         }
         .valid-input {
             border-color: #4CAF50 !important;
+        }
+        .warning {
+            color: #ff9800;
+            font-size: 14px;
+            padding: 8px;
+            margin-top: 5px;
+            background-color: rgba(255, 152, 0, 0.1);
+            border-left: 3px solid #ff9800;
+            border-radius: 0 4px 4px 0;
         }
     </style>
 </head>
@@ -164,7 +193,7 @@
 
     <script>
         let resolution = [1920, 1080];
-        let pixelPitch = 2;
+        let pixelPitch = 12;
         let focalLength = 35;
 
         function selectButton(groupId, value) {
@@ -183,11 +212,16 @@
         }
 
         function validateResolution(value) {
+            // Remove all spaces and convert to lowercase
+            const cleanValue = value.replace(/\s+/g, '').toLowerCase();
             const pattern = /^\d+x\d+$/;
-            if (!pattern.test(value)) {
-                return "Invalid format. Use WidthxHeight (e.g., 1920x1080)";
+            
+            if (!pattern.test(cleanValue)) {
+                return "Invalid format. Use WidthxHeight (e.g., 1920x1080 or 1920 x 1080)";
             }
-            const [width, height] = value.split('x').map(Number);
+            
+            const [width, height] = cleanValue.split('x').map(Number);
+            
             if (width <= 0 || height <= 0) {
                 return "Width and height must be positive numbers";
             }
@@ -232,6 +266,11 @@
             input.classList.remove('valid-input');
             errorDiv.textContent = errorMessage;
             errorDiv.style.display = 'block';
+        }
+
+        function showWarning(message) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<div class="warning">⚠️ ${message}</div>`;
         }
 
         function clearError(inputId) {
@@ -282,12 +321,15 @@
         });
 
         document.getElementById('custom-resolution').addEventListener('input', function() {
-            const error = validateResolution(this.value);
+            const cleanValue = this.value.replace(/\s+/g, '');
+            const error = validateResolution(cleanValue);
+            
             if (error) {
                 showError('custom-resolution', error);
+                showWarning('Please check the resolution format (e.g., 1920x1080 or 1920 x 1080)');
             } else {
                 clearError('custom-resolution');
-                resolution = this.value.split('x').map(Number);
+                resolution = cleanValue.split('x').map(Number);
                 updateCalculations();
             }
         });
@@ -296,6 +338,7 @@
             const error = validatePixelPitch(this.value);
             if (error) {
                 showError('custom-pixel-pitch', error);
+                showWarning('Pixel pitch must be between 0.1 and 100 µm');
             } else {
                 clearError('custom-pixel-pitch');
                 pixelPitch = parseFloat(this.value);
@@ -307,6 +350,7 @@
             const error = validateFocalLength(this.value);
             if (error) {
                 showError('custom-focal-length', error);
+                showWarning('Focal length must be between 0.1 and 1000 mm');
             } else {
                 clearError('custom-focal-length');
                 focalLength = parseFloat(this.value);
@@ -314,14 +358,93 @@
             }
         });
 
+        function getCurrentValues() {
+            // Get resolution
+            const resolutionButton = document.querySelector('#resolution-buttons button.selected');
+            let currentResolution = resolution; // Use default value as fallback
+            
+            if (resolutionButton) {
+                if (resolutionButton.getAttribute('data-value') === 'custom') {
+                    const customRes = document.getElementById('custom-resolution').value;
+                    const cleanCustomRes = customRes.replace(/\s+/g, '');
+                    
+                    if (!validateResolution(cleanCustomRes)) {
+                        currentResolution = cleanCustomRes.split('x').map(Number);
+                    } else {
+                        return { error: 'Please enter a valid resolution' };
+                    }
+                } else {
+                    currentResolution = resolutionButton.getAttribute('data-value').split('x').map(Number);
+                }
+            }
+
+            // Get pixel pitch
+            const pixelPitchButton = document.querySelector('#pixel-pitch-buttons button.selected');
+            let currentPixelPitch = pixelPitch; // Use default value as fallback
+            if (pixelPitchButton) {
+                if (pixelPitchButton.getAttribute('data-value') === 'custom') {
+                    const customPitch = document.getElementById('custom-pixel-pitch').value;
+                    if (validatePixelPitch(customPitch) === null) {
+                        currentPixelPitch = parseFloat(customPitch);
+                    } else {
+                        return { error: 'Please enter a valid pixel pitch' };
+                    }
+                } else {
+                    currentPixelPitch = parseFloat(pixelPitchButton.getAttribute('data-value'));
+                }
+            }
+
+            // Get focal length
+            const focalLengthButton = document.querySelector('#focal-length-buttons button.selected');
+            let currentFocalLength = focalLength; // Use default value as fallback
+            if (focalLengthButton) {
+                if (focalLengthButton.getAttribute('data-value') === 'custom') {
+                    const customFocal = document.getElementById('custom-focal-length').value;
+                    if (validateFocalLength(customFocal) === null) {
+                        currentFocalLength = parseFloat(customFocal);
+                    } else {
+                        return { error: 'Please enter a valid focal length' };
+                    }
+                } else {
+                    currentFocalLength = parseFloat(focalLengthButton.getAttribute('data-value'));
+                }
+            }
+
+            return { currentResolution, currentPixelPitch, currentFocalLength };
+        }
+
         document.getElementById('calculate-button').addEventListener('click', function() {
-            const [width, height] = resolution;
+            const values = getCurrentValues();
+            
+            if (values.error) {
+                showWarning(values.error);
+                return;
+            }
 
-            const horizontalFOV = (2 * Math.atan((width * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
-            const verticalFOV = (2 * Math.atan((height * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
-            const diagonalFOV = (2 * Math.atan((Math.sqrt(width**2 + height**2) * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
+            const { currentResolution, currentPixelPitch, currentFocalLength } = values;
+            const [width, height] = currentResolution;
+            const pixelPitchMM = currentPixelPitch / 1000;
+            
+            try {
+                // Calculate FOV
+                const horizontalFOV = (2 * Math.atan((width * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
+                const verticalFOV = (2 * Math.atan((height * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
+                const diagonalFOV = (2 * Math.atan((Math.sqrt(width**2 + height**2) * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
 
-            document.getElementById('result').innerText = `Horizontal FOV: ${horizontalFOV.toFixed(2)}°\nVertical FOV: ${verticalFOV.toFixed(2)}°\nDiagonal FOV: ${diagonalFOV.toFixed(2)}°`;
+                // Check for valid results
+                if (isNaN(horizontalFOV) || isNaN(verticalFOV) || isNaN(diagonalFOV)) {
+                    showWarning('Invalid calculation result. Please check your inputs.');
+                    return;
+                }
+
+                // Display results
+                document.getElementById('result').innerHTML = 
+                    `Horizontal FOV: ${horizontalFOV.toFixed(2)}°<br>` +
+                    `Vertical FOV: ${verticalFOV.toFixed(2)}°<br>` +
+                    `Diagonal FOV: ${diagonalFOV.toFixed(2)}°`;
+            } catch (error) {
+                showWarning('An error occurred during calculation. Please check your inputs.');
+            }
         });
 
         // Initialize with default values
