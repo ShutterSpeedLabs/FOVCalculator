@@ -12,8 +12,31 @@
             color: #ffffff;
         }
         .container {
-            max-width: 600px;
+            max-width: 1200px;
             margin: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .left-panel {
+            padding-right: 20px;
+        }
+        .right-panel {
+            padding-left: 20px;
+            border-left: 1px solid #444;
+        }
+        .dri-title {
+            margin-top: 0;
+            color: #4CAF50;
+        }
+        #calculate-button {
+            grid-column: 1 / -1;
+        }
+        .target-info {
+            font-size: 14px;
+            color: #888;
+            margin-top: 5px;
+            margin-bottom: 15px;
         }
         .button-group {
             display: flex;
@@ -123,68 +146,109 @@
             border-left: 3px solid #ff9800;
             border-radius: 0 4px 4px 0;
         }
+        .ranges-table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .ranges-table th, .ranges-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        .ranges-table th {
+            background-color: #333;
+            font-weight: bold;
+        }
+        .ranges-table tr:last-child td {
+            border-bottom: none;
+        }
+        #target-size-input-group input {
+            width: 120px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Field of View Calculator</h1>
+        <div class="left-panel">
+            <h1>Field of View & DRI Calculator</h1>
 
-        <label>Resolution</label>
-        <div class="button-group" id="resolution-buttons">
-            <button data-value="320x240">320 x 240</button>
-            <button data-value="640x480" class="selected" >640 x 480</button>
-            <button data-value="1024x768">1024 x 768</button>
-            <button data-value="1280x720">1280 x 720</button>
-            <button data-value="1920x1080">1920 x 1080</button>
-            <button data-value="3840x2160">3840 x 2160</button>
-            <button data-value="custom" id="custom-resolution-button">Custom</button>
-        </div>
-        <div class="input-group" id="resolution-input-group">
-            <input type="text" id="custom-resolution" placeholder="e.g., 1920x1080">
-            <span class="input-hint">Format: WidthxHeight (e.g., 1920x1080)</span>
-            <div class="error-message" id="resolution-error"></div>
-        </div>
+            <label>Resolution</label>
+            <div class="button-group" id="resolution-buttons">
+                <button data-value="320x240">320 x 240</button>
+                <button data-value="640x480" class="selected" >640 x 480</button>
+                <button data-value="1024x768">1024 x 768</button>
+                <button data-value="1280x720">1280 x 720</button>
+                <button data-value="1920x1080">1920 x 1080</button>
+                <button data-value="3840x2160">3840 x 2160</button>
+                <button data-value="custom" id="custom-resolution-button">Custom</button>
+            </div>
+            <div class="input-group" id="resolution-input-group">
+                <input type="text" id="custom-resolution" placeholder="e.g., 1920x1080">
+                <span class="input-hint">Format: WidthxHeight (e.g., 1920x1080)</span>
+                <div class="error-message" id="resolution-error"></div>
+            </div>
 
-        <label>Pixel Pitch (µm)</label>
-        <div class="button-group" id="pixel-pitch-buttons">
-            <button data-value="1.3">1.3 µm</button>
-            <button data-value="2" >2 µm</button>
-            <button data-value="3">3 µm</button>
-            <button data-value="5">5 µm</button>
-            <button data-value="10">10 µm</button>
-            <button data-value="12"class="selected">12 µm</button>
-            <button data-value="17">17 µm</button>
+            <label>Pixel Pitch (µm)</label>
+            <div class="button-group" id="pixel-pitch-buttons">
+                <button data-value="1.3">1.3 µm</button>
+                <button data-value="2" >2 µm</button>
+                <button data-value="3">3 µm</button>
+                <button data-value="5">5 µm</button>
+                <button data-value="10">10 µm</button>
+                <button data-value="12"class="selected">12 µm</button>
+                <button data-value="17">17 µm</button>
 
-            <button data-value="custom" id="custom-pixel-pitch-button">Custom</button>
-        </div>
-        <div class="input-group" id="pixel-pitch-input-group">
-            <input type="number" id="custom-pixel-pitch" placeholder="e.g., 2.0" step="0.1" min="0.1">
-            <span class="input-hint">Range: 0.1 - 100 µm</span>
-            <div class="error-message" id="pixel-pitch-error"></div>
-        </div>
+                <button data-value="custom" id="custom-pixel-pitch-button">Custom</button>
+            </div>
+            <div class="input-group" id="pixel-pitch-input-group">
+                <input type="number" id="custom-pixel-pitch" placeholder="e.g., 2.0" step="0.1" min="0.1">
+                <span class="input-hint">Range: 0.1 - 100 µm</span>
+                <div class="error-message" id="pixel-pitch-error"></div>
+            </div>
 
-        <label>Focal Length (mm)</label>
-        <div class="button-group" id="focal-length-buttons">
-            <button data-value="6">6 mm</button>
-            <button data-value="9">9 mm</button>
-            <button data-value="13">13 mm</button>
-            <button data-value="25">25 mm</button>
-            <button data-value="35" class="selected">35 mm</button>
-            <button data-value="50">50 mm</button>
-            <button data-value="70">70 mm</button>
-            <button data-value="75">75 mm</button>
-            <button data-value="100">100 mm</button>
-            <button data-value="custom" id="custom-focal-length-button">Custom</button>
-        </div>
-        <div class="input-group" id="focal-length-input-group">
-            <input type="number" id="custom-focal-length" placeholder="e.g., 35" step="0.1" min="0.1">
-            <span class="input-hint">Range: 0.1 - 1000 mm</span>
-            <div class="error-message" id="focal-length-error"></div>
-        </div>
+            <label>Focal Length (mm)</label>
+            <div class="button-group" id="focal-length-buttons">
+                <button data-value="6">6 mm</button>
+                <button data-value="9">9 mm</button>
+                <button data-value="13">13 mm</button>
+                <button data-value="25">25 mm</button>
+                <button data-value="35" class="selected">35 mm</button>
+                <button data-value="50">50 mm</button>
+                <button data-value="70">70 mm</button>
+                <button data-value="75">75 mm</button>
+                <button data-value="100">100 mm</button>
+                <button data-value="custom" id="custom-focal-length-button">Custom</button>
+            </div>
+            <div class="input-group" id="focal-length-input-group">
+                <input type="number" id="custom-focal-length" placeholder="e.g., 35" step="0.1" min="0.1">
+                <span class="input-hint">Range: 0.1 - 1000 mm</span>
+                <div class="error-message" id="focal-length-error"></div>
+            </div>
 
-        <button id="calculate-button">Calculate FOV</button>
+            <label>Target Size</label>
+            <div class="button-group" id="target-size-buttons">
+                <button data-value="2.3,2.3" class="selected">NATO (2.3 x 2.3m)</button>
+                <button data-value="0.5,1.8">Human (0.5 x 1.8m)</button>
+                <button data-value="2.3,2.5">Vehicle (2.3 x 2.5m)</button>
+                <button data-value="2.5,3.0">Truck (2.5 x 3.0m)</button>
+                <button data-value="custom" id="custom-target-size-button">Custom</button>
+            </div>
+            <div class="input-group" id="target-size-input-group">
+                <input type="number" id="custom-target-width" placeholder="Width (m)" step="0.1" min="0.1">
+                <input type="number" id="custom-target-height" placeholder="Height (m)" step="0.1" min="0.1">
+                <span class="input-hint">Range: 0.1 - 100 m</span>
+                <div class="error-message" id="target-size-error"></div>
+            </div>
 
-        <div class="result" id="result"></div>
+            <button id="calculate-button">Calculate</button>
+        </div>
+        <div class="right-panel">
+            <div class="result" id="result"></div>
+        </div>
     </div>
 
     <footer>
@@ -192,274 +256,249 @@
     </footer>
 
     <script>
-        let resolution = [1920, 1080];
+        // Constants
+        const JOHNSON_CRITERIA = {
+            detection: { '50': 1.0, '70': 1.5, '90': 2.0 },
+            recognition: { '50': 4.0, '70': 5.0, '90': 6.0 },
+            identification: { '50': 8.0, '70': 10.0, '90': 12.0 }
+        };
+
+        // Initial values
+        let resolution = [640, 480];
         let pixelPitch = 12;
         let focalLength = 35;
+        let targetWidth = 2.3;
+        let targetHeight = 2.3;
 
-        function selectButton(groupId, value) {
-            const buttons = document.getElementById(groupId).querySelectorAll('button');
-            buttons.forEach(button => {
-                if (button.getAttribute('data-value') === value) {
-                    button.classList.add('selected');
-                } else {
-                    button.classList.remove('selected');
-                }
-            });
-        }
-
+        // Helper function to update calculations
         function updateCalculations() {
-            document.getElementById('calculate-button').click();
+            calculateFOVandDRI();
         }
 
-        function validateResolution(value) {
-            // Remove all spaces and convert to lowercase
-            const cleanValue = value.replace(/\s+/g, '').toLowerCase();
-            const pattern = /^\d+x\d+$/;
-            
-            if (!pattern.test(cleanValue)) {
-                return "Invalid format. Use WidthxHeight (e.g., 1920x1080 or 1920 x 1080)";
-            }
-            
-            const [width, height] = cleanValue.split('x').map(Number);
-            
-            if (width <= 0 || height <= 0) {
-                return "Width and height must be positive numbers";
-            }
-            if (width > 10000 || height > 10000) {
-                return "Resolution values should be less than 10000";
-            }
-            return null;
-        }
-
-        function validatePixelPitch(value) {
-            const pitch = parseFloat(value);
-            if (isNaN(pitch)) {
-                return "Please enter a valid number";
-            }
-            if (pitch <= 0.1) {
-                return "Pixel pitch must be greater than 0.1 µm";
-            }
-            if (pitch > 100) {
-                return "Pixel pitch must be less than 100 µm";
-            }
-            return null;
-        }
-
-        function validateFocalLength(value) {
-            const focal = parseFloat(value);
-            if (isNaN(focal)) {
-                return "Please enter a valid number";
-            }
-            if (focal <= 0.1) {
-                return "Focal length must be greater than 0.1 mm";
-            }
-            if (focal > 1000) {
-                return "Focal length must be less than 1000 mm";
-            }
-            return null;
-        }
-
-        function showError(inputId, errorMessage) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId}-error`);
-            input.classList.add('error');
-            input.classList.remove('valid-input');
-            errorDiv.textContent = errorMessage;
-            errorDiv.style.display = 'block';
-        }
-
-        function showWarning(message) {
-            const resultDiv = document.getElementById('result');
-            resultDiv.innerHTML = `<div class="warning">⚠️ ${message}</div>`;
-        }
-
-        function clearError(inputId) {
-            const input = document.getElementById(inputId);
-            const errorDiv = document.getElementById(`${inputId}-error`);
-            input.classList.remove('error');
-            input.classList.add('valid-input');
-            errorDiv.style.display = 'none';
-        }
-
-        document.getElementById('resolution-buttons').addEventListener('click', function(event) {
-            if (event.target.tagName === 'BUTTON') {
-                const value = event.target.getAttribute('data-value');
-                selectButton('resolution-buttons', value);
-                document.getElementById('resolution-input-group').style.display = 
-                    value === 'custom' ? 'flex' : 'none';
-                if (value !== 'custom') {
-                    resolution = value.split('x').map(Number);
-                    updateCalculations();
-                }
-            }
-        });
-
-        document.getElementById('pixel-pitch-buttons').addEventListener('click', function(event) {
-            if (event.target.tagName === 'BUTTON') {
-                const value = event.target.getAttribute('data-value');
-                selectButton('pixel-pitch-buttons', value);
-                document.getElementById('pixel-pitch-input-group').style.display = 
-                    value === 'custom' ? 'flex' : 'none';
-                if (value !== 'custom') {
-                    pixelPitch = parseFloat(value);
-                    updateCalculations();
-                }
-            }
-        });
-
-        document.getElementById('focal-length-buttons').addEventListener('click', function(event) {
-            if (event.target.tagName === 'BUTTON') {
-                const value = event.target.getAttribute('data-value');
-                selectButton('focal-length-buttons', value);
-                document.getElementById('focal-length-input-group').style.display = 
-                    value === 'custom' ? 'flex' : 'none';
-                if (value !== 'custom') {
-                    focalLength = parseFloat(value);
-                    updateCalculations();
-                }
-            }
-        });
-
-        document.getElementById('custom-resolution').addEventListener('input', function() {
-            const cleanValue = this.value.replace(/\s+/g, '');
-            const error = validateResolution(cleanValue);
-            
-            if (error) {
-                showError('custom-resolution', error);
-                showWarning('Please check the resolution format (e.g., 1920x1080 or 1920 x 1080)');
-            } else {
-                clearError('custom-resolution');
-                resolution = cleanValue.split('x').map(Number);
-                updateCalculations();
-            }
-        });
-
-        document.getElementById('custom-pixel-pitch').addEventListener('input', function() {
-            const error = validatePixelPitch(this.value);
-            if (error) {
-                showError('custom-pixel-pitch', error);
-                showWarning('Pixel pitch must be between 0.1 and 100 µm');
-            } else {
-                clearError('custom-pixel-pitch');
-                pixelPitch = parseFloat(this.value);
-                updateCalculations();
-            }
-        });
-
-        document.getElementById('custom-focal-length').addEventListener('input', function() {
-            const error = validateFocalLength(this.value);
-            if (error) {
-                showError('custom-focal-length', error);
-                showWarning('Focal length must be between 0.1 and 1000 mm');
-            } else {
-                clearError('custom-focal-length');
-                focalLength = parseFloat(this.value);
-                updateCalculations();
-            }
-        });
-
-        function getCurrentValues() {
-            // Get resolution
-            const resolutionButton = document.querySelector('#resolution-buttons button.selected');
-            let currentResolution = resolution; // Use default value as fallback
-            
-            if (resolutionButton) {
-                if (resolutionButton.getAttribute('data-value') === 'custom') {
-                    const customRes = document.getElementById('custom-resolution').value;
-                    const cleanCustomRes = customRes.replace(/\s+/g, '');
-                    
-                    if (!validateResolution(cleanCustomRes)) {
-                        currentResolution = cleanCustomRes.split('x').map(Number);
-                    } else {
-                        return { error: 'Please enter a valid resolution' };
-                    }
-                } else {
-                    currentResolution = resolutionButton.getAttribute('data-value').split('x').map(Number);
-                }
-            }
-
-            // Get pixel pitch
-            const pixelPitchButton = document.querySelector('#pixel-pitch-buttons button.selected');
-            let currentPixelPitch = pixelPitch; // Use default value as fallback
-            if (pixelPitchButton) {
-                if (pixelPitchButton.getAttribute('data-value') === 'custom') {
-                    const customPitch = document.getElementById('custom-pixel-pitch').value;
-                    if (validatePixelPitch(customPitch) === null) {
-                        currentPixelPitch = parseFloat(customPitch);
-                    } else {
-                        return { error: 'Please enter a valid pixel pitch' };
-                    }
-                } else {
-                    currentPixelPitch = parseFloat(pixelPitchButton.getAttribute('data-value'));
-                }
-            }
-
-            // Get focal length
-            const focalLengthButton = document.querySelector('#focal-length-buttons button.selected');
-            let currentFocalLength = focalLength; // Use default value as fallback
-            if (focalLengthButton) {
-                if (focalLengthButton.getAttribute('data-value') === 'custom') {
-                    const customFocal = document.getElementById('custom-focal-length').value;
-                    if (validateFocalLength(customFocal) === null) {
-                        currentFocalLength = parseFloat(customFocal);
-                    } else {
-                        return { error: 'Please enter a valid focal length' };
-                    }
-                } else {
-                    currentFocalLength = parseFloat(focalLengthButton.getAttribute('data-value'));
-                }
-            }
-
-            return { currentResolution, currentPixelPitch, currentFocalLength };
-        }
-
-        document.getElementById('calculate-button').addEventListener('click', function() {
-            const values = getCurrentValues();
-            
-            if (values.error) {
-                showWarning(values.error);
-                return;
-            }
-
-            const { currentResolution, currentPixelPitch, currentFocalLength } = values;
-            const [width, height] = currentResolution;
-            const pixelPitchMM = currentPixelPitch / 1000;
-            
+        // Main calculation function
+        function calculateFOVandDRI() {
             try {
                 // Calculate FOV
-                const horizontalFOV = (2 * Math.atan((width * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
-                const verticalFOV = (2 * Math.atan((height * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
-                const diagonalFOV = (2 * Math.atan((Math.sqrt(width**2 + height**2) * pixelPitchMM) / (2 * currentFocalLength))) * (180 / Math.PI);
+                const horizontalFOV = (2 * Math.atan((resolution[0] * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
+                const verticalFOV = (2 * Math.atan((resolution[1] * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
+                const diagonalFOV = (2 * Math.atan((Math.sqrt(resolution[0]**2 + resolution[1]**2) * pixelPitch / 1000) / (2 * focalLength))) * (180 / Math.PI);
 
-                // Calculate IFOV (in microradians and degrees)
-                const horizontalIFOV_urad = (pixelPitchMM / currentFocalLength) * 1000000; // Convert to microradians
-                const verticalIFOV_urad = horizontalIFOV_urad; // Same for square pixels
+                // Calculate IFOV
+                const horizontalIFOV_urad = (pixelPitch / focalLength) * 1000;
+                const verticalIFOV_urad = horizontalIFOV_urad;
                 const horizontalIFOV_deg = horizontalIFOV_urad * (180 / Math.PI) / 1000000;
                 const verticalIFOV_deg = horizontalIFOV_deg;
 
-                // Check for valid results
-                if (isNaN(horizontalFOV) || isNaN(verticalFOV) || isNaN(diagonalFOV) || 
-                    isNaN(horizontalIFOV_urad) || isNaN(verticalIFOV_urad)) {
-                    showWarning('Invalid calculation result. Please check your inputs.');
-                    return;
+                // Use the minimum dimension for DRI calculations
+                const criticalTargetSize = Math.min(targetWidth, targetHeight);
+
+                // Calculate ranges
+                const ranges = {};
+                for (const type in JOHNSON_CRITERIA) {
+                    ranges[type] = {};
+                    for (const probability in JOHNSON_CRITERIA[type]) {
+                        const cycles = JOHNSON_CRITERIA[type][probability];
+                        ranges[type][probability] = (criticalTargetSize * 1000000) / (cycles * horizontalIFOV_urad);
+                    }
                 }
 
                 // Display results
-                document.getElementById('result').innerHTML = 
-                    `<strong>Field of View (FOV):</strong><br>` +
-                    `Horizontal FOV: ${horizontalFOV.toFixed(2)}°<br>` +
-                    `Vertical FOV: ${verticalFOV.toFixed(2)}°<br>` +
-                    `Diagonal FOV: ${diagonalFOV.toFixed(2)}°<br><br>` +
-                    `<strong>Instantaneous Field of View (IFOV):</strong><br>` +
-                    `Horizontal IFOV: ${horizontalIFOV_urad.toFixed(2)} µrad (${horizontalIFOV_deg.toFixed(4)}°)<br>` +
-                    `Vertical IFOV: ${verticalIFOV_urad.toFixed(2)} µrad (${verticalIFOV_deg.toFixed(4)}°)`;
+                document.getElementById('result').innerHTML = `
+                    <strong>Field of View (FOV):</strong><br>
+                    Horizontal FOV: ${horizontalFOV.toFixed(2)}°<br>
+                    Vertical FOV: ${verticalFOV.toFixed(2)}°<br>
+                    Diagonal FOV: ${diagonalFOV.toFixed(2)}°<br><br>
+                    
+                    <strong>Instantaneous Field of View (IFOV):</strong><br>
+                    Horizontal IFOV: ${horizontalIFOV_urad.toFixed(2)} µrad (${horizontalIFOV_deg.toFixed(4)}°)<br>
+                    Vertical IFOV: ${verticalIFOV_urad.toFixed(2)} µrad (${verticalIFOV_deg.toFixed(4)}°)<br><br>
+                    
+                    <strong>Target Dimensions:</strong><br>
+                    Width: ${targetWidth}m<br>
+                    Height: ${targetHeight}m<br>
+                    Critical Dimension: ${criticalTargetSize}m<br><br>
+                    
+                    <table class="ranges-table">
+                        <tr>
+                            <th>Probability</th>
+                            <th>Detection (m)</th>
+                            <th>Recognition (m)</th>
+                            <th>Identification (m)</th>
+                        </tr>
+                        <tr>
+                            <td>50%</td>
+                            <td>${ranges.detection['50'].toFixed(0)}</td>
+                            <td>${ranges.recognition['50'].toFixed(0)}</td>
+                            <td>${ranges.identification['50'].toFixed(0)}</td>
+                        </tr>
+                        <tr>
+                            <td>70%</td>
+                            <td>${ranges.detection['70'].toFixed(0)}</td>
+                            <td>${ranges.recognition['70'].toFixed(0)}</td>
+                            <td>${ranges.identification['70'].toFixed(0)}</td>
+                        </tr>
+                        <tr>
+                            <td>90%</td>
+                            <td>${ranges.detection['90'].toFixed(0)}</td>
+                            <td>${ranges.recognition['90'].toFixed(0)}</td>
+                            <td>${ranges.identification['90'].toFixed(0)}</td>
+                        </tr>
+                    </table>`;
             } catch (error) {
+                console.error(error);
                 showWarning('An error occurred during calculation. Please check your inputs.');
             }
+        }
+
+        // Add this helper function at the top of your script section
+        function selectButton(groupId, value) {
+            const buttons = document.getElementById(groupId).getElementsByTagName('button');
+            for (const button of buttons) {
+                button.classList.remove('selected');
+                if (button.getAttribute('data-value') === value) {
+                    button.classList.add('selected');
+                }
+            }
+        }
+
+        // Update the event listeners for all button groups
+        document.addEventListener('DOMContentLoaded', function() {
+            // For resolution buttons
+            document.getElementById('resolution-buttons').addEventListener('click', function(event) {
+                if (event.target.tagName === 'BUTTON') {
+                    const value = event.target.getAttribute('data-value');
+                    selectButton('resolution-buttons', value);
+                    
+                    document.getElementById('resolution-input-group').style.display = 
+                        value === 'custom' ? 'flex' : 'none';
+                    
+                    if (value !== 'custom') {
+                        const [width, height] = value.split('x').map(Number);
+                        resolution = [width, height];
+                        updateCalculations();
+                    }
+                }
+            });
+
+            // For pixel pitch buttons
+            document.getElementById('pixel-pitch-buttons').addEventListener('click', function(event) {
+                if (event.target.tagName === 'BUTTON') {
+                    const value = event.target.getAttribute('data-value');
+                    selectButton('pixel-pitch-buttons', value);
+                    
+                    document.getElementById('pixel-pitch-input-group').style.display = 
+                        value === 'custom' ? 'flex' : 'none';
+                    
+                    if (value !== 'custom') {
+                        pixelPitch = parseFloat(value);
+                        updateCalculations();
+                    }
+                }
+            });
+
+            // For focal length buttons
+            document.getElementById('focal-length-buttons').addEventListener('click', function(event) {
+                if (event.target.tagName === 'BUTTON') {
+                    const value = event.target.getAttribute('data-value');
+                    selectButton('focal-length-buttons', value);
+                    
+                    document.getElementById('focal-length-input-group').style.display = 
+                        value === 'custom' ? 'flex' : 'none';
+                    
+                    if (value !== 'custom') {
+                        focalLength = parseFloat(value);
+                        updateCalculations();
+                    }
+                }
+            });
+
+            // For target size buttons
+            document.getElementById('target-size-buttons').addEventListener('click', function(event) {
+                if (event.target.tagName === 'BUTTON') {
+                    const value = event.target.getAttribute('data-value');
+                    selectButton('target-size-buttons', value);
+                    
+                    document.getElementById('target-size-input-group').style.display = 
+                        value === 'custom' ? 'flex' : 'none';
+                    
+                    if (value !== 'custom') {
+                        const [width, height] = value.split(',').map(Number);
+                        targetWidth = width;
+                        targetHeight = height;
+                        document.getElementById('current-target-size').textContent = 
+                            `${width}m × ${height}m ${event.target.textContent.match(/\(.*\)/)?.[0] || ''}`;
+                        updateCalculations();
+                    }
+                }
+            });
+
+            // For custom inputs
+            const customInputs = {
+                'custom-resolution': function(value) {
+                    const match = value.match(/^(\d+)x(\d+)$/);
+                    if (match) {
+                        resolution = [parseInt(match[1]), parseInt(match[2])];
+                        return true;
+                    }
+                    return false;
+                },
+                'custom-pixel-pitch': function(value) {
+                    const num = parseFloat(value);
+                    if (!isNaN(num) && num > 0) {
+                        pixelPitch = num;
+                        return true;
+                    }
+                    return false;
+                },
+                'custom-focal-length': function(value) {
+                    const num = parseFloat(value);
+                    if (!isNaN(num) && num > 0) {
+                        focalLength = num;
+                        return true;
+                    }
+                    return false;
+                },
+                'custom-target-width': function(value) {
+                    const num = parseFloat(value);
+                    if (!isNaN(num) && num > 0) {
+                        targetWidth = num;
+                        return true;
+                    }
+                    return false;
+                },
+                'custom-target-height': function(value) {
+                    const num = parseFloat(value);
+                    if (!isNaN(num) && num > 0) {
+                        targetHeight = num;
+                        return true;
+                    }
+                    return false;
+                }
+            };
+
+            // Add input event listeners for all custom inputs
+            for (const [inputId, validator] of Object.entries(customInputs)) {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        if (validator(this.value)) {
+                            updateCalculations();
+                        }
+                    });
+                }
+            }
+
+            // Initial calculation
+            updateCalculations();
         });
 
-        // Initialize with default values
-        document.getElementById('calculate-button').click();
+        // Helper function to show warnings
+        function showWarning(message) {
+            console.warn(message);
+            // You can implement a visual warning if needed
+        }
+
+        document.getElementById('calculate-button').addEventListener('click', calculateFOVandDRI);
     </script>
 </body>
 </html>
